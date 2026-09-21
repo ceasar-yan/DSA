@@ -1,0 +1,2 @@
+g++ LoopBenchmark.cpp -o LoopBenchmark -O2
+./LoopBenchmark

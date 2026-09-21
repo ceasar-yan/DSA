@@ -1,0 +1,2 @@
+g++ -std=c++26 StudentCRUD.cpp -o StudentCRUD -lncurses
+./StudentCRUD
