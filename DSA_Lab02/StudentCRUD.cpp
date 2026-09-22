@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <print>
 #include <iostream>
+#include <iterator>
 #include <pthread.h>
 
 using namespace std;
@@ -19,12 +20,13 @@ char getch();
 
 // Main Functions
 Student addStudent();
-void displayStudents();
+template<size_t S>
+void displayStudents(Student (&stud)[S]);
 void updateStudent();
 void deleteStudent();
 
 int main() {
-  const size_t MAX_SIZE {5};
+  const size_t MAX_SIZE {3};
   Student student[MAX_SIZE] {};
   int currentCount {0};
 
@@ -58,12 +60,19 @@ int main() {
     } else {
       switch (selected) {
         case 1:
-          student[currentCount] = addStudent();
-          currentCount++;
+          if (currentCount !=  MAX_SIZE) {
+            student[currentCount] = addStudent();
+            currentCount++;
+          } else {
+            println("Storage is FULL!");
+            char c = getch();
+          }
           selected = 0;
           break;
 
         case 2:
+          displayStudents(student);
+          selected = 0;
           break;
 
         case 3:
@@ -123,13 +132,38 @@ Student addStudent() {
   getline(cin, buffer.course);
 
   print("Enter Year Level: ");
-  while (!(cin >> buffer.id)) {
+  while (!(cin >> buffer.yearLevel)) {
     print("No Non-Number \nEnter Year Level: ");
 
-    cin.clear();
-    cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    clearCin();
   }
   clearCin();
 
   return buffer;
 }
+
+template<size_t S>
+void displayStudents(Student (&stud)[S]) {
+  const size_t size {std::size(stud)};
+  int counter {};
+  for (int i {0}; i < size; i++) {
+    if (stud[i].id != 0) {
+      counter++;
+    }
+  }
+  println("================================================================================================");
+  println("|         ID         |                Name               |        COURSE        |     YEAR     |");
+  println("================================================================================================");
+  if (counter == 0) 
+    println("\t\t\t\t\tNo Student Recorded!");
+  else {
+    for (int i {0}; i < counter; i++) {
+      println("| {:<18} | {:<33} | {:<20} | {:<12} |", stud[i].id, stud[i].name, stud[i].course, stud[i].yearLevel);
+    }
+    println("------------------------------------------------------------------------------------------------");
+  }
+
+  println("\n\t\t\t\t       Press any to Proceed!");
+  char c = getch();
+}
+
