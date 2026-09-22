@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <print>
 #include <iostream>
+#include <pthread.h>
 
 using namespace std;
 
@@ -12,16 +13,19 @@ struct Student {
   int yearLevel {};
 };
 
-// Function Declaration
+// Utility Functions 
+void clearCin();
 char getch();
-void addStudent();
+
+// Main Functions
+Student addStudent();
 void displayStudents();
 void updateStudent();
 void deleteStudent();
 
 int main() {
   const size_t MAX_SIZE {5};
-  Student student[MAX_SIZE];
+  Student student[MAX_SIZE] {};
   int currentCount {0};
 
   const size_t MAX_OPT {5}; 
@@ -54,6 +58,9 @@ int main() {
     } else {
       switch (selected) {
         case 1:
+          student[currentCount] = addStudent();
+          currentCount++;
+          selected = 0;
           break;
 
         case 2:
@@ -83,6 +90,12 @@ int main() {
   return 0;
 }
 
+void clearCin() {
+  cin.clear();
+  cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+}
+
+
 char getch() {
     char buffer {};
     std::cout << std::flush;
@@ -91,4 +104,32 @@ char getch() {
     system("stty sane && setterm -cursor on");
     
     return buffer;
+}
+
+Student addStudent() {
+  Student buffer {};
+
+  print("Enter ID: ");
+  while (!(cin >> buffer.id)) {
+    print("No Non-Number \nEnter ID: ");
+    clearCin();
+  }
+
+  clearCin();
+  print("Enter Name: ");
+  getline(cin, buffer.name);
+
+  print("Enter Course: ");
+  getline(cin, buffer.course);
+
+  print("Enter Year Level: ");
+  while (!(cin >> buffer.id)) {
+    print("No Non-Number \nEnter Year Level: ");
+
+    cin.clear();
+    cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+  }
+  clearCin();
+
+  return buffer;
 }
