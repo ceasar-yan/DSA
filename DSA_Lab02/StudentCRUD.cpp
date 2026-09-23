@@ -21,9 +21,11 @@ char getch();
 // Main Functions
 Student addStudent();
 template<size_t S>
-void displayStudents(Student (&stud)[S]);
-void updateStudent();
-void deleteStudent();
+void displayStudents(const Student (&stud)[S]);
+template<size_t S>
+void updateStudent(Student (&stud)[S]);
+template<size_t S>
+void deleteStudent(Student (&stud)[S]);
 
 int main() {
   const size_t MAX_SIZE {3};
@@ -72,13 +74,29 @@ int main() {
 
         case 2:
           displayStudents(student);
+          println("\n\t\t\t\t       Press any to Proceed!");
+          getch();
           selected = 0;
           break;
 
         case 3:
+          if (currentCount != 0) {
+            updateStudent(student);
+          } else {
+            println("Nothing to Update");
+            getch();
+          }
+          selected = 0;
           break;
 
         case 4:
+          if (currentCount != 0) {
+            deleteStudent(student);
+          } else {
+            println("Nothing to Delete");
+            getch();
+          }
+          selected = 0;
           break;
 
         case 5:
@@ -143,16 +161,16 @@ Student addStudent() {
 }
 
 template<size_t S>
-void displayStudents(Student (&stud)[S]) {
+void displayStudents(const Student (&stud)[S]) {
   const size_t size {std::size(stud)};
   int counter {};
   for (int i {0}; i < size; i++) {
-    if (stud[i].id != 0) {
+    if (stud[i].id != 0 || !stud[i].name.empty()) {
       counter++;
     }
   }
   println("================================================================================================");
-  println("|         ID         |                Name               |        COURSE        |     YEAR     |");
+  println("|         ID         |                NAME               |        COURSE        |  YEAR LEVEL  |");
   println("================================================================================================");
   if (counter == 0) 
     println("\t\t\t\t\tNo Student Recorded!");
@@ -162,8 +180,167 @@ void displayStudents(Student (&stud)[S]) {
     }
     println("------------------------------------------------------------------------------------------------");
   }
-
-  println("\n\t\t\t\t       Press any to Proceed!");
-  char c = getch();
 }
 
+template<size_t S>
+void updateStudent(Student (&stud)[S]) {
+  const size_t size {std::size(stud)};
+  int counter {};
+  for (int i {0}; i < size; i++) {
+    if (stud[i].id != 0 || !stud[i].name.empty()) {
+      counter++;
+    }
+  }
+  
+  int id {};
+  print("Enter Student ID: ");
+  while (!(cin >> id)) {
+    print("No Non-Number \nEnter Student ID: ");
+    clearCin();
+  }
+  clearCin();
+
+  int index {};
+  bool found {};
+  for (int i{0}; i < counter; i++) {
+    if (stud[i].id == id) {
+      found = true;
+      index = i;
+      break;
+    }
+  }
+
+  if (found) {
+    do {
+      system("clear");
+  println("================================================================================================");
+  println("|         ID         |                NAME               |        COURSE        |  YEAR LEVEL  |");
+  println("================================================================================================");
+
+  
+  int sel {};
+    println("| {:<18} | {:<33} | {:<20} | {:<12} |", stud[index].id, stud[index].name, stud[index].course, stud[index].yearLevel);
+    println("------------------------------------------------------------------------------------------------\n");
+    println("What woud you like to update?");
+    println("[1] ID \n[2] NAME \n[3] COURSE \n[4] YEAR LEVEL\n[5] EXIT");
+
+    print("selected by choosing the number: ");
+    while (!(cin >> sel)) {
+      print("No Non-Number \nTry Again: ");
+      clearCin();
+    }
+    clearCin();
+
+    switch (sel) {
+      case 1:
+        print("Update ID: ");
+        while (!(cin >> stud[index].id)) {
+          print("No Non-Number \nTry Again: ");
+          clearCin();
+        }
+        clearCin();
+        break;
+
+      case 2:
+        print("Update NAME: ");
+        getline(cin, stud[index].name);
+        break;
+
+      case 3:
+        print("Update COURSE: ");
+        getline(cin, stud[index].course);
+        break;
+
+      case 4:
+        print("New Year Level: ");
+        while (!(cin >> stud[index].yearLevel)) {
+          print("No Non-Number \nTry Again: ");
+          clearCin();
+        }
+        clearCin();
+        break;
+
+      case 5:
+        return;
+        break;
+
+      default:
+      break;
+    }
+
+    } while (true);
+
+  } else {
+    println("\nNo ID Match");
+    println("Press any to Proceed!");
+    getch();
+
+    return;
+  }
+}
+
+template<size_t S>
+void deleteStudent(Student (&stud)[S]) {
+  const size_t size {std::size(stud)};
+  int counter {};
+  for (int i {0}; i < size; i++) {
+    if (stud[i].id != 0 || !stud[i].name.empty()) {
+      counter++;
+    }
+  }
+
+  int id {};
+  print("Enter Student ID to Delete: ");
+  while (!(cin >> id)) {
+    print("No Non-Number \nEnter Student ID to Delete: ");
+    clearCin();
+  }
+  clearCin();
+
+  int index {-1};
+  bool found {false};
+  for (int i{0}; i < counter; i++) {
+    if (stud[i].id == id) {
+      found = true;
+      index = i;
+      break;
+    }
+  }
+
+  if (found) {
+    system("clear");
+    println("================================================================================================");
+    println("|         ID         |                NAME               |        COURSE        |  YEAR LEVEL  |");
+    println("================================================================================================");
+    println("| {:<18} | {:<33} | {:<20} | {:<12} |", stud[index].id, stud[index].name, stud[index].course, stud[index].yearLevel);
+    println("------------------------------------------------------------------------------------------------\n");
+
+    print("Are you sure you want to delete this student? (Y/N): ");
+    char confirm {};
+    cin >> confirm;
+    clearCin();
+
+    if (confirm == 'Y' || confirm == 'y') {
+      // Shift elements left to overwrite the deleted student
+      for (int i = index; i < counter - 1; i++) {
+        stud[i] = stud[i + 1];
+      }
+
+      // Reset the last active element to clear leftover duplicate data
+      stud[counter - 1] = Student{};
+
+      println("\nStudent deleted successfully!");
+      println("\nPress any key to Proceed!");
+      getch();
+    } else {
+      println("\nDeletion canceled.");
+      println("\nPress any key to Proceed!");
+      getch();
+    }
+
+  } else {
+    println("\nNo ID Match");
+    println("Press any to Proceed!");
+    getch();
+  }
+}
